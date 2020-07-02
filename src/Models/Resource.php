@@ -1,0 +1,155 @@
+<?php
+
+declare(strict_types = 1);
+
+namespace Swoolecan\Permission\Models;
+
+use Swoolecan\Permission\Guard;
+use Hyperf\DbConnection\Model\Model;
+use Swoolecan\Permission\Traits\HasPermissions;
+use Swoolecan\Permission\Exceptions\ResourceDoesNotExist;
+use Swoolecan\Permission\Exceptions\GuardDoesNotMatch;
+use Swoolecan\Permission\Exceptions\ResourceAlreadyExists;
+use Swoolecan\Permission\Contracts\Resource as ResourceContract;
+use Swoolecan\Permission\Traits\RefreshesPermissionCache;
+use Hyperf\Database\Model\Relations\MorphToMany;
+use Hyperf\Database\Model\Relations\BelongsToMany;
+
+class Resource extends Model implements ResourceContract
+{
+    use HasPermissions;
+    use RefreshesPermissionCache;
+
+    protected $guarded = ['id'];
+
+    public function __construct(array $attributes = [])
+    {
+        $attributes['guard_name'] = $attributes['guard_name'] ?? config('auth.defaults.guard');
+
+        parent::__construct($attributes);
+
+        $this->setTable(config('permission.table_names.roles'));
+    }
+
+    public static function create(array $attributes = [])
+    {
+        $attributes['guard_name'] = $attributes['guard_name'] ?? Guard::getDefaultName(static::class);
+
+        if (static::where('name', $attributes['name'])->where('guard_name', $attributes['guard_name'])->first()) {
+            throw ResourceAlreadyExists::create($attributes['name'], $attributes['guard_name']);
+        }
+        return static::query()->create($attributes);
+    }
+
+    /**
+     * A role may be given various permissions.
+     */
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            config('permission.models.permission'),
+            config('permission.table_names.role_has_permissions'),
+            'role_id',
+            'permission_id'
+        );
+    }
+
+    /**
+     * A role belongs to some users of the model associated with its guard.
+     */
+    public function users(): MorphToMany
+    {
+        return $this->morphedByMany(
+            getModelForGuard($this->attributes['guard_name']),
+            'model',
+            config('permission.table_names.model_has_roles'),
+            'role_id',
+            config('permission.column_names.model_morph_key')
+        );
+    }
+
+    /**
+     * Find a role by its name and guard name.
+     *
+     */
+    public static function findByName(string $name, $guardName = null): ResourceContract
+    {
+        $guardName = $guardName ?? Guard::getDefaultName(static::class);
+
+        $role = static::where('name', $name)->where('guard_name', $guardName)->first();
+
+        if (! $role) {
+            throw ResourceDoesNotExist::named($name);
+        }
+
+        return $role;
+    }
+
+    public static function findById(int $id, $guardName = null): ResourceContract
+    {
+        $guardName = $guardName ?? Guard::getDefaultName(static::class);
+
+        $role = static::where('id', $id)->where('guard_name', $guardName)->first();
+
+        if (! $role) {
+            throw ResourceDoesNotExist::withId($id);
+        }
+
+        return $role;
+    }
+
+    /**
+     * Find or create role by its name (and optionally guardName).
+     *
+     */
+    public static function findOrCreate(string $name, $guardName = null): ResourceContract
+    {
+        $guardName = $guardName ?? Guard::getDefaultName(static::class);
+
+        $role = static::where('name', $name)->where('guard_name', $guardName)->first();
+
+        if (! $role) {
+            return static::query()->create(['name' => $name, 'guard_name' => $guardName]);
+        }
+
+        return $role;
+    }
+
+    /**
+     * Determine if the user may perform the given permission.
+     *
+     */
+    public function hasPermissionTo($permission): bool
+    {
+        $permissionClass = $this->getPermissionClass();
+
+        if (is_string($permission)) {
+            $permission = $permissionClass->findByName($permission, $this->getDefaultGuardName());
+        }
+
+        if (is_int($permission)) {
+            $permission = $permissionClass->findById($permission, $this->getDefaultGuardName());
+        }
+
+        if (! $this->getGuardNames()->contains($permission->guard_name)) {
+            throw GuardDoesNotMatch::create($permission->guard_name, $this->getGuardNames());
+        }
+
+        return $this->permissions->contains('id', $permission->id);
+    }
+
+    protected function getList(array $params, int $pageSize)
+    {
+        if (!empty($params['with'])) {
+            $query = $this->with($params['with']);
+        } else {
+            $query = $this->query();
+        }
+        if (!isset($params['sort_name']) || empty($params['sort_name'])) {
+            $params['sort_name'] = $this->primaryKey;
+        }
+        $params['sort_value'] = isset($params['sort_value']) ? ($params['sort_value'] == 'descend' ? 'desc' : 'asc') : 'desc';
+        $list = $query->orderBy($params['sort_name'], $params['sort_value'])->paginate($pageSize);
+        return $list;
+    }
+}
