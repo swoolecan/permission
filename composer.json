@@ -21,22 +21,17 @@
         }
     ],
     "require": {
-        "php": "^7.2",
-        "ext-swoole": ">=4.4",
-        "hyperf/database": "~1.1.0",
-        "hyperf/db-connection": "^1.1",
-        "hyperf/cache": "~1.1.0",
-        "hyperf/utils": "~1.1.22"
+        "php": "^7.3",
+        "ext-swoole": ">=4.5",
+        "swoolecan/baseapp": "dev-master"
     },
     "require-dev": {
-        "hyperf/testing": "~1.1.0"
     },
     "autoload": {
         "psr-4": {
             "Swoolecan\\Permission\\": "src"
         },
         "files": [
-            "src/helpers.php"
         ]
     },
     "autoload-dev": {
