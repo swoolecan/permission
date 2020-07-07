@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types = 1);
+
+namespace App\Model\Passport;
+
+class Permission extends Model
+{
+    protected $table = 'auth_permission';
+    protected $primaryKey = 'id';
+    protected $guarded = ['created_at', 'last_login_at', 'updated_at'];
+    protected $fillable = [
+        'name', 'email', 'mobile', 'password', 'sex', 'real_name'
+    ];
+
+    protected $attributes = [
+        'status' => 1,
+    ];
+}

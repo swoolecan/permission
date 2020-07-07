@@ -4,8 +4,8 @@ declare(strict_types = 1);
 
 namespace Swoolecan\Permission\Models;
 
+use Swoolecan\Baseapp\Models\AbstractModelCache;
 use Swoolecan\Permission\Guard;
-use Hyperf\DbConnection\Model\Model;
 use Swoolecan\Permission\Traits\HasPermissions;
 use Swoolecan\Permission\Exceptions\RoleDoesNotExist;
 use Swoolecan\Permission\Exceptions\GuardDoesNotMatch;
@@ -20,6 +20,8 @@ class Role extends Model implements RoleContract
     use HasPermissions;
     use RefreshesPermissionCache;
 
+    protected $table = 'auth_role';
+    protected $primaryKey = 'id';
     protected $guarded = ['id'];
 
     public function __construct(array $attributes = [])

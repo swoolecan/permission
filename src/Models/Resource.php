@@ -4,8 +4,8 @@ declare(strict_types = 1);
 
 namespace Swoolecan\Permission\Models;
 
+use Swoolecan\Baseapp\Models\AbstractModelCache;
 use Swoolecan\Permission\Guard;
-use Hyperf\DbConnection\Model\Model;
 use Swoolecan\Permission\Traits\HasPermissions;
 use Swoolecan\Permission\Exceptions\ResourceDoesNotExist;
 use Swoolecan\Permission\Exceptions\GuardDoesNotMatch;
@@ -20,6 +20,8 @@ class Resource extends Model implements ResourceContract
     use HasPermissions;
     use RefreshesPermissionCache;
 
+    protected $table = 'auth_resource';
+    protected $primaryKey = 'id';
     protected $guarded = ['id'];
 
     public function __construct(array $attributes = [])
