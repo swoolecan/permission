@@ -7,15 +7,15 @@ namespace Swoolecan\Permission\Models;
 use Swoolecan\Permission\Guard;
 use Hyperf\DbConnection\Model\Model;
 use Swoolecan\Permission\Traits\HasPermissions;
-use Swoolecan\Permission\Exceptions\RoleDoesNotExist;
+use Swoolecan\Permission\Exceptions\ResourceDoesNotExist;
 use Swoolecan\Permission\Exceptions\GuardDoesNotMatch;
-use Swoolecan\Permission\Exceptions\RoleAlreadyExists;
-use Swoolecan\Permission\Contracts\Role as RoleContract;
+use Swoolecan\Permission\Exceptions\ResourceAlreadyExists;
+use Swoolecan\Permission\Contracts\Resource as ResourceContract;
 use Swoolecan\Permission\Traits\RefreshesPermissionCache;
 use Hyperf\Database\Model\Relations\MorphToMany;
 use Hyperf\Database\Model\Relations\BelongsToMany;
 
-class Role extends Model implements RoleContract
+class Resource extends Model implements ResourceContract
 {
     use HasPermissions;
     use RefreshesPermissionCache;
@@ -36,7 +36,7 @@ class Role extends Model implements RoleContract
         $attributes['guard_name'] = $attributes['guard_name'] ?? Guard::getDefaultName(static::class);
 
         if (static::where('name', $attributes['name'])->where('guard_name', $attributes['guard_name'])->first()) {
-            throw RoleAlreadyExists::create($attributes['name'], $attributes['guard_name']);
+            throw ResourceAlreadyExists::create($attributes['name'], $attributes['guard_name']);
         }
         return static::query()->create($attributes);
     }
@@ -72,27 +72,27 @@ class Role extends Model implements RoleContract
      * Find a role by its name and guard name.
      *
      */
-    public static function findByName(string $name, $guardName = null): RoleContract
+    public static function findByName(string $name, $guardName = null): ResourceContract
     {
         $guardName = $guardName ?? Guard::getDefaultName(static::class);
 
         $role = static::where('name', $name)->where('guard_name', $guardName)->first();
 
         if (! $role) {
-            throw RoleDoesNotExist::named($name);
+            throw ResourceDoesNotExist::named($name);
         }
 
         return $role;
     }
 
-    public static function findById(int $id, $guardName = null): RoleContract
+    public static function findById(int $id, $guardName = null): ResourceContract
     {
         $guardName = $guardName ?? Guard::getDefaultName(static::class);
 
         $role = static::where('id', $id)->where('guard_name', $guardName)->first();
 
         if (! $role) {
-            throw RoleDoesNotExist::withId($id);
+            throw ResourceDoesNotExist::withId($id);
         }
 
         return $role;
@@ -102,7 +102,7 @@ class Role extends Model implements RoleContract
      * Find or create role by its name (and optionally guardName).
      *
      */
-    public static function findOrCreate(string $name, $guardName = null): RoleContract
+    public static function findOrCreate(string $name, $guardName = null): ResourceContract
     {
         $guardName = $guardName ?? Guard::getDefaultName(static::class);
 
