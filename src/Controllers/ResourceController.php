@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace App\Controller\Passport;
+namespace Swoolecan\Permission\Controllers;
 
 class ResourceController extends AbstractController
 {

@@ -1,9 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace App\Repository\Passport;
-
-use Swoolecan\Baseapp\Repositories\AbstractRepository;
+namespace Swoolecan\Permission\Repositories;
 
 /**
  * Class RoleRepository

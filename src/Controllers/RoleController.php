@@ -2,11 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace App\Controller\Passport;
-
-use App\Exception;
-use App\Model;
-use App\Request;
+namespace Swoolecan\Permission\Controllers;
 
 class RoleController extends AbstractController
 {

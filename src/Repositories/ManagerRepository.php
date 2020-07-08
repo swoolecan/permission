@@ -4,9 +4,8 @@ declare(strict_types = 1);
 namespace Swoolecan\Permission\Repositories;
 
 /**
- * Class ResourceRepository
+ * Class ManagerRepository
  */
-class ResourceRepository extends AbstractRepository
+class ManagerRepository extends AbstractRepository
 {
 }
-

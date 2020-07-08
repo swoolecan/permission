@@ -2,9 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace App\Controller\Passport;
-
-use App\Controller\AbstractController;
+namespace Swoolecan\Permission\Controllers;
 
 class PermissionController extends AbstractController
 {

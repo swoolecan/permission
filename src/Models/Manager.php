@@ -2,13 +2,13 @@
 
 declare(strict_types = 1);
 
-namespace App\Model\Passport;
+namespace Swoolecan\Permission\Models;
 
-use App\Model\Traits\TraitUser;
+//use App\Model\Traits\TraitUser;
 
-class ManagerBackend extends Model
+class Manager extends Model
 {
-    use TraitUser;
+    //use TraitUser;
 
     protected $table = 'auth_manager_backend';
     protected $primaryKey = 'id';

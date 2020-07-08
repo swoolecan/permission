@@ -2,9 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace App\Controller\Passport;
+namespace Swoolecan\Permission\Controllers;
 
-class ManagerBackendController extends AbstractController
+class ManagerController extends AbstractController
 {
     /*public function _addData()
     {
